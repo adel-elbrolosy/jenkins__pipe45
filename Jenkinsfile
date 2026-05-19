@@ -39,7 +39,7 @@ pipeline {
                 echo 'Deploying Flask app...'
 
                 sh '''
-                nohup python3 app.py > output.log 2>&1 &
+                nohup python3 app.py --host=0.0.0.0 --port=5000 > output.log 2>&1 &
                 '''
             }
         }
@@ -47,7 +47,7 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'Pipeline completed successfully! 🚀'
         }
 
         failure {
