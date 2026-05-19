@@ -2,43 +2,56 @@ pipeline {
     agent any
 
     stages {
+
         stage('Checkout') {
             steps {
+                echo 'Checking out source code...'
                 checkout scm
-                echo 'Checking out source code from GitHub Repository...'
-                echo 'Source code checked out successfully.'
             }
         }
 
         stage('Build') {
             steps {
-                echo 'Building the Python application...'
-                echo 'Installing dependencies from requirements.txt...'
-                echo 'Successfully installed: flask, pytest'
-                echo 'Build completed successfully.'
+                echo 'Installing dependencies...'
+
+                sh '''
+                python3 -m venv venv
+                . venv/bin/activate
+                pip install --upgrade pip
+                pip install -r requirements.txt
+                '''
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Running Unit Tests using pytest...'
-                echo 'test_app.py::BasicTests::test_home PASSED'
-                echo '1 test passed successfully in 0.05 seconds.'
+                echo 'Running tests...'
+
+                sh '''
+                . venv/bin/activate
+                python -m pytest test_app.py
+                '''
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploying Application to Local Environment...'
-                echo 'Starting Flask server on http://localhost:5000'
-                echo 'Application deployed successfully and running!'
+                echo 'Deploying Flask app...'
+
+                sh '''
+                nohup python3 app.py > output.log 2>&1 &
+                '''
             }
         }
     }
 
     post {
         success {
-            echo 'Congratulations! ITI Full-Cycle Pipeline Completed Successfully!'
+            echo 'Pipeline completed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
